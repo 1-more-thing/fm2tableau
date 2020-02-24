@@ -185,10 +185,13 @@
 			};
 
 			metaData.forEach(function (meta) {
-				var isRelated = meta.name.indexOf('::');
-				var fieldId = meta.id + (isRelated !== -1 ? '_' + fmConnector.filterId(meta.name.substr(0, isRelated)) : '');
+				//Filemaker dataAPI mess up with related fields, remove support
+				//var isRelated = meta.name.indexOf('::');
+				//var fieldId = meta.id + (isRelated !== -1 ? '_' + fmConnector.filterId(meta.name.substr(0, isRelated)) : '');
+				const fieldId = meta.id;
 
 				//skip duplicated field if it is already included and check we support result type
+				//TODO: add a warning if duplicated field -> means user add a related field in its layout
 				if (conf.metaData[layout].fieldNames.indexOf(fieldId) === -1 && dataTypesMap.hasOwnProperty(meta.result)) {
 					conf.metaData[layout].fieldNames.push(meta.id);
 					conf.metaData[layout].fieldTypes.push(dataTypesMap[meta.result]);
