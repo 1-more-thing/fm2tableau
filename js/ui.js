@@ -9,7 +9,7 @@
 			data: {
 				isLoading: false,
 				isDbLoading: false,
-				isLayoutLoading: null,
+				isLayoutLoading: false,
 				isRelogin: false,
 				strings: null,
 				auth: {
@@ -209,6 +209,7 @@
 								this.credentialError = e.message;
 							}
 						})
+
 				},
 				parseLayouts(layouts) {
 					var that = this;
@@ -229,12 +230,12 @@
 				loadSettings(data) {
 					console.log("loadSettings");
 					this.auth.database = data.database;
-					this.layouts = data.layouts;
+					this.layouts = data.layouts || [];
 					this.auth.username = data.username;
 					this.auth.password = data.password;
 					this.incremental = data.incremental;
 					this.pageSize = data.pageSize;
-					this.isRelogin = data.isRelogin;
+					this.isRelogin = data.isRelogin || false;
 					if (!this.isRelogin) {
 						this.getDatabases();
 						this.getToken();
@@ -242,7 +243,7 @@
 				},
 				connect() {
 					console.log("connect");
-					var conf = {};
+					const conf = {};
 					conf.loginType = "";
 					conf.endpoint = location.origin + '/fmi/data/vLatest/';
 					conf.database = this.auth.database;
