@@ -1,7 +1,8 @@
-/*
-* FileMaker helper for tableau connector
-* Author: Romain Dunand - 1-more-thing
-*/
+/*!
+ * FileMaker 2 Tableau
+ * Copyright (C) 2020 1-more-thing (http://www.1-more-thing.com)
+ * Licensed under GPLv3 (http://www.gnu.org/licenses/)
+ */
 
 String.prototype.format = function (data) {
 	var formatted = this;

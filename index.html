@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
-    <title>1MT - Tableau Connector</title>
+    <title>FileMaker 2 Tableau</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
@@ -16,147 +16,156 @@
         <div v-cloak>
             <v-app-bar
                     app
-                    color="black"
+                    color="purple darken-3"
                     dark
             >
+                <v-img
+                        class="mx-2"
+                        src="img/1mt.png"
+                        max-height="40"
+                        max-width="40"
+                        contain
+                ></v-img>
                 <v-toolbar-title>{{ isRelogin ? strings.titleRelogin : strings.title }}</v-toolbar-title>
             </v-app-bar>
             <v-content>
                 <template>
-                <v-container>
-                    <form autocomplete="false">
+                    <v-container>
+                        <form autocomplete="false">
+                            <v-row>
+                                <v-col class="">
+                                    <v-text-field
+                                            v-model="auth.username"
+                                            :label="strings.labelAccount"
+                                            prepend-icon="mdi-account-box"
+                                            required
+                                            :error="isCredentialError"
+                                            autocomplete="new-password"
+                                            @change="credentialChanged"
+                                    ></v-text-field>
+                                    <v-text-field
+                                            v-model="auth.password"
+                                            name="field2"
+                                            :label="strings.labelPassword"
+                                            type="password"
+                                            prepend-icon="mdi-lock"
+                                            required
+                                            :error="isCredentialError"
+                                            autocomplete="new-password"
+                                            @change="credentialChanged"
+                                    ></v-text-field>
+                                </v-col>
+                                <v-col class="" v-if="databaseList.length > 0 && !isRelogin">
+                                    <v-combobox
+                                            small
+                                            v-model="auth.database"
+                                            prepend-icon="mdi-database-search"
+                                            clearable
+                                            :items="databaseList"
+                                            :label="strings.labelDatabase"
+                                            :no-data-text="strings.errorNoDatabase"
+                                            :loading="isDbLoading"
+                                            :disabled="isDbLoading"
+                                            @change="getToken"
+                                    >
+                                        <template v-slot:selection="data">
+                                            <v-chip
+                                                    small
+                                                    :key="JSON.stringify(data.item)"
+                                                    v-bind="data.attrs"
+                                                    :input-value="data.selected"
+                                                    :disabled="data.disabled"
+                                                    @click:close="data.parent.selectItem(data.item)"
+                                                    :color="!databaseList.includes(data.item) ? 'error' : ''"
+                                            >
+                                                {{ data.item }}
+                                            </v-chip>
+                                        </template>
+                                    </v-combobox>
+                                    <v-combobox
+                                            v-model="layouts"
+                                            v-if="auth.database"
+                                            multiple
+                                            small
+                                            prepend-icon="mdi-page-layout-body"
+                                            chips
+                                            :loading="isLayoutLoading"
+                                            :disabled="isLayoutLoading || layoutList.length === 0"
+                                            :items="layoutList"
+                                            :label="strings.labelLayouts"
+                                            :no-data-text="strings.errorNoLayout"
+                                    >
+                                        <template v-slot:selection="data">
+                                            <v-chip
+                                                    small
+                                                    close
+                                                    :key="JSON.stringify(data.item)"
+                                                    v-bind="data.attrs"
+                                                    :input-value="data.selected"
+                                                    :disabled="data.disabled"
+                                                    @click:close="data.parent.selectItem(data.item)"
+                                                    :color="!layoutList.includes(data.item) ? 'error' : ''"
+                                            >
+                                                {{ data.item }}
+                                            </v-chip>
+                                        </template>
+                                    </v-combobox>
+                                </v-col>
+                            </v-row>
+                        </form>
+                        <v-snackbar
+                                v-model="isCredentialError"
+                                color="error"
+                                :timeout="6000"
+                                top
+                        >
+                            {{ credentialError }}
+                            <v-btn
+                                    dark
+                                    text
+                                    @click="isCredentialError = false"
+                            >
+                                <v-icon>mdi-close-circle</v-icon>
+                            </v-btn>
+                        </v-snackbar>
                         <v-row>
-                            <v-col class="">
-                                <v-text-field
-                                        v-model="auth.username"
-                                        :label="strings.labelAccount"
-                                        prepend-icon="mdi-account-box"
-                                        required
-                                        :error="isCredentialError"
-                                        autocomplete="new-password"
-                                        @change="credentialChanged"
-                                ></v-text-field>
-                                <v-text-field
-                                        v-model="auth.password"
-                                        name="field2"
-                                        :label="strings.labelPassword"
-                                        type="password"
-                                        prepend-icon="mdi-lock"
-                                        required
-                                        :error="isCredentialError"
-                                        autocomplete="new-password"
-                                        @change="credentialChanged"
-                                ></v-text-field>
-                            </v-col>
-                            <v-col class="" v-if="databaseList.length > 0 && !isRelogin">
-                                <v-combobox
-                                        small
-                                        v-model="auth.database"
-                                        prepend-icon="mdi-database-search"
-                                        clearable
-                                        :items="databaseList"
-                                        :label="strings.labelDatabase"
-                                        :no-data-text="strings.errorNoDatabase"
-                                        :loading="isDbLoading"
-                                        :disabled="isDbLoading"
-                                        @change="getToken"
-                                >
-                                    <template v-slot:selection="data">
-                                        <v-chip
-                                                small
-                                                :key="JSON.stringify(data.item)"
-                                                v-bind="data.attrs"
-                                                :input-value="data.selected"
-                                                :disabled="data.disabled"
-                                                @click:close="data.parent.selectItem(data.item)"
-                                                :color="!databaseList.includes(data.item) ? 'error' : ''"
-                                        >
-                                            {{ data.item }}
-                                        </v-chip>
-                                    </template>
-                                </v-combobox>
-                                <v-combobox
-                                        v-model="layouts"
+                            <v-col>
+
+                                <v-switch
                                         v-if="auth.database"
-                                        multiple
-                                        small
-                                        prepend-icon="mdi-page-layout-body"
-                                        chips
-                                        :loading="isLayoutLoading"
-                                        :disabled="isLayoutLoading || layoutList.length === 0"
-                                        :items="layoutList"
-                                        :label="strings.labelLayouts"
-                                        :no-data-text="strings.errorNoLayout"
+                                        v-model="incremental"
+                                        :disabled="isRelogin"
+                                        :label="strings.labelIncremental"
                                 >
-                                    <template v-slot:selection="data">
-                                        <v-chip
-                                                small
-                                                close
-                                                :key="JSON.stringify(data.item)"
-                                                v-bind="data.attrs"
-                                                :input-value="data.selected"
-                                                :disabled="data.disabled"
-                                                @click:close="data.parent.selectItem(data.item)"
-                                                :color="!layoutList.includes(data.item) ? 'error' : ''"
-                                        >
-                                            {{ data.item }}
-                                        </v-chip>
+                                    <template v-slot:label>
+                                        <span>{{ strings.labelIncremental }}</span>
+                                        <v-tooltip bottom>
+                                            <template v-slot:activator="{ on }">
+                                                <v-icon color="primary" dark v-on="on">mdi-information-outline</v-icon>
+                                            </template>
+                                            <span>{{ strings.incrementalTooltip }}</span>
+                                        </v-tooltip>
                                     </template>
-                                </v-combobox>
+                                </v-switch>
+
+                            </v-col>
+                            <v-col class="text-end">
+                                <v-btn :disabled="!isValidConfiguration" color="primary" @click="connect">Connect
+                                </v-btn>
                             </v-col>
                         </v-row>
-                    </form>
-                    <v-snackbar
-                            v-model="isCredentialError"
-                            color="error"
-                            :timeout="6000"
-                            top
-                    >
-                        {{ credentialError }}
-                        <v-btn
-                                dark
-                                text
-                                @click="isCredentialError = false"
-                        >
-                            <v-icon>mdi-close-circle</v-icon>
-                        </v-btn>
-                    </v-snackbar>
-                    <v-row>
-                        <v-col>
-
-                            <v-switch
-                                    v-if="auth.database"
-                                    v-model="incremental"
-                                    :disabled="isRelogin"
-                                    :label="strings.labelIncremental"
-                            >
-                                <template v-slot:label>
-                                    <span>{{ strings.labelIncremental }}</span>
-                                    <v-tooltip bottom>
-                                        <template v-slot:activator="{ on }">
-                                            <v-icon color="primary" dark v-on="on">mdi-information-outline</v-icon>
-                                        </template>
-                                        <span>{{ strings.incrementalTooltip }}</span>
-                                    </v-tooltip>
-                                </template>
-                            </v-switch>
-
-                        </v-col>
-                        <v-col class="text-end">
-                            <v-btn :disabled="!isValidConfiguration" color="primary" @click="connect">Connect</v-btn>
-                        </v-col>
-                    </v-row>
-                </v-container>
+                    </v-container>
                     <v-overlay :value="isLoading">
                         <v-progress-circular indeterminate size="64"></v-progress-circular>
                     </v-overlay>
                 </template>
             </v-content>
             <v-footer
-                    color="black"
+                    color="purple darken-3"
                     app
             >
-                <span class="white--text">made with love by 1-more-thing</span>
+                <v-spacer></v-spacer>
+                <div class="white--text caption">&copy; {{ new Date().getFullYear() }} - 1-more-thing</div>
             </v-footer>
         </div>
     </v-app>
