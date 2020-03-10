@@ -17,10 +17,10 @@
 		};
 
 		fmConnector.init = function (callback) {
-			var settings = {};
+			let settings = {};
 			if (tableau.phase === tableau.phaseEnum.interactivePhase || tableau.phase === tableau.phaseEnum.authPhase) {
 				if (tableau.connectionData) {
-					var conf = JSON.parse(tableau.connectionData);
+					const conf = JSON.parse(tableau.connectionData);
 					settings = {
 						database: conf.database,
 						layouts: conf.layouts,
@@ -151,7 +151,7 @@
 
 		fmConnector.shutdown = function (shutdownCallback) {
 			if (tableau.phase === tableau.phaseEnum.gatherDataPhase && fmConnector.reLogin) {
-				var conf = JSON.parse(tableau.connectionData);
+				const conf = JSON.parse(tableau.connectionData);
 
 				fmConnector.filemaker.logout(conf.token,
 					() => {
@@ -168,7 +168,7 @@
 
 		//store field names, types and other resource metaData into tableau.connectionData
 		fmConnector.storeMetaData = function (layout, metaData) {
-			var dataTypesMap = {
+			const dataTypesMap = {
 				"text": "string",
 				"bool": "bool",
 				"date": "date",
@@ -177,8 +177,8 @@
 				"number": "float",
 				"int": "int"
 			};
-			var conf = JSON.parse(tableau.connectionData);
-			var cols = [];
+			const conf = JSON.parse(tableau.connectionData);
+			const cols = [];
 
 			conf.metaData[layout] = {
 				fieldNames: [],
@@ -186,9 +186,6 @@
 			};
 
 			metaData.forEach(function (meta) {
-				//Filemaker dataAPI mess up with related fields, remove support
-				//var isRelated = meta.name.indexOf('::');
-				//var fieldId = meta.id + (isRelated !== -1 ? '_' + fmConnector.filterId(meta.name.substr(0, isRelated)) : '');
 				const fieldId = meta.id;
 
 				//skip duplicated field if it is already included and check we support result type
@@ -204,7 +201,7 @@
 				}
 			});
 
-			var tableInfo = {
+			const tableInfo = {
 				id: layout,
 				alias: layout,
 				columns: cols
@@ -219,8 +216,8 @@
 			// Layout name doesn't conform to Tableau table id requirements
 			// filter layout name for id and store original name in alias
 			if (!fmConnector.idRegExp.test(tableInfo.id)) {
-				var tableId = fmConnector.filterId(tableInfo.id);
-				if (tableId.length == 0) {
+				const tableId = fmConnector.filterId(tableInfo.id);
+				if (tableId.length === 0) {
 					tableInfo.id = "table";
 				} else {
 					tableInfo.id = tableId;
@@ -239,17 +236,16 @@
 		};
 
 		fmConnector.getMetaData = function (successCallback) {
-			var conf = JSON.parse(tableau.connectionData);
-			var layouts = conf.layouts;
+			const conf = JSON.parse(tableau.connectionData);
+			const layouts = conf.layouts;
 
 			//Reset table Infos
 			conf.tableInfos = [];
 			tableau.connectionData = JSON.stringify(conf);
 
-			var promises = [];
+			const promises = [];
 			layouts.forEach(function (layout) {
-
-				var promise = fmConnector.filemaker.getMetaData(layout
+				const promise = fmConnector.filemaker.getMetaData(layout
 					, (metaData) => {
 						fmConnector.storeMetaData(layout, metaData);
 					}
@@ -266,7 +262,8 @@
 
 		fmConnector.FMLogin = function () {
 			app.isLoading = true;
-			var conf = JSON.parse(tableau.connectionData);
+
+			const conf = JSON.parse(tableau.connectionData);
 			fmConnector.filemaker.setDatabase(conf.database);
 			fmConnector.filemaker.setCredentials(tableau.username, tableau.password);
 			fmConnector.filemaker.getToken((token) => {

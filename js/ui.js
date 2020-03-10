@@ -56,10 +56,10 @@
 				},
 			},
 			watch: {
-				username: function (val) {
+				username: function () {
 					this.credentialError = null;
 				},
-				password: function (val) {
+				password: function () {
 					this.credentialError = null;
 				},
 			},
@@ -88,7 +88,7 @@
 					this.databaseList = [];
 					this.credentialError = null;
 
-					var that = this;
+					const that = this;
 					axios
 						.get('/fmi/data/vLatest/databases', opts)
 						.then(function (res) {
@@ -138,7 +138,7 @@
 						}
 					};
 
-					var that = this;
+					const that = this;
 					axios
 						.get(`/fmi/data/vLatest/databases/${this.auth.database}/layouts`, opts)
 						.then(function (res) {
@@ -179,7 +179,7 @@
 						}
 					};
 
-					var body = {
+					const body = {
 						'fmDataSource': [this.auth]
 					};
 

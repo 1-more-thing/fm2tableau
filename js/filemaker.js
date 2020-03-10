@@ -5,8 +5,8 @@
  */
 
 String.prototype.format = function (data) {
-	var formatted = this;
-	for (var arg of Object.keys(data)) {
+	let formatted = this;
+	for (const arg of Object.keys(data)) {
 		formatted = formatted.replace("{" + arg + "}", data[arg]);
 	}
 	return formatted;
@@ -19,7 +19,7 @@ const FM_DATABASES = '/databases',
 	FM_CURSOR = '/databases/{database}/layouts/{layout}/cursor',
 	FM_CURSOR_RESET = '/databases/{database}/layouts/{layout}/cursor/reset';
 
-var FileMaker = function () {
+const FileMaker = function () {
 	this.host = location.origin;
 	this.database = null;
 	this.username = null;
@@ -52,7 +52,7 @@ var FileMaker = function () {
 	};
 
 	this.setCredentials = function (username, password) {
-		this.username = username
+		this.username = username;
 		this.password = password
 	};
 
@@ -62,7 +62,7 @@ var FileMaker = function () {
 
 	this.bearer = function() {
 		return "Bearer " + this.token
-	}
+	};
 
 	this.isFmError = function (response) {
 		return response.messages && response.messages[0].code !== '0'
@@ -76,7 +76,7 @@ var FileMaker = function () {
 	};
 
 	this.parseRequestError = function (e) {
-		var error;
+		let error;
 
 		if (e.request && e.request.status === 401) {
 			error = {
@@ -110,17 +110,18 @@ var FileMaker = function () {
 	 * @param errorCallback Callback on error, return formatted error
 	 */
 	this.getToken = function (successCallback, errorCallback) {
-		var url = this.prepareUrl(FM_LOGIN);
+		const url = this.prepareUrl(FM_LOGIN);
 		const opts = {
 			auth: {
 				username: this.username,
 				password: this.password
 			},
 		};
+
 		this.axios.post(url, null, opts)
 			.then((res) => {
 				if (this.isFmError(res.data)) {
-					errorCallback(this.formatFmError(res.data))
+					errorCallback(this.formatFmError(res.data));
 					return;
 				}
 				this.token = res.data.response.token;
@@ -135,7 +136,7 @@ var FileMaker = function () {
 	};
 
 	/**
-	 *
+	 * @param token
 	 * @param successCallback Success Callback, token will be provided as parameter
 	 * @param errorCallback Callback on error, return formatted error
 	 */
@@ -148,11 +149,11 @@ var FileMaker = function () {
 			successCallback();
 		}
 
-		var url = this.prepareUrl(FM_LOGOUT) + '/' + token;
+		const url = this.prepareUrl(FM_LOGIN) + '/' + token;
 		this.axios.delete(url)
 			.then((res) => {
 				if (this.isFmError(res.data)) {
-					errorCallback(this.formatFmError(res.data))
+					errorCallback(this.formatFmError(res.data));
 					return;
 				}
 				successCallback();
@@ -163,7 +164,7 @@ var FileMaker = function () {
 	};
 
 	this.getDatabases = function(successCallback, errorCallback) {
-		var url = FM_DATABASES;
+		const url = FM_DATABASES;
 		const opts = {
 			auth: {
 				username: this.username,
@@ -173,7 +174,7 @@ var FileMaker = function () {
 		this.axios.get(url, opts)
 			.then((res) => {
 				if (this.isFmError(res.data)) {
-					errorCallback(this.formatFmError(res.data))
+					errorCallback(this.formatFmError(res.data));
 					return;
 				}
 				successCallback(res.data.response.databases);
@@ -184,7 +185,7 @@ var FileMaker = function () {
 	};
 
 	this.getLayouts = function(successCallback, errorCallback) {
-		var url = FM_LAYOUTS;
+		const url = FM_LAYOUTS;
 		const opts = {
 			headers: {
 				"Authorization": this.bearer()
@@ -214,7 +215,7 @@ var FileMaker = function () {
 
 	this.getMetaData = function(layout, successCallback, errorCallback) {
 		this.layout = layout;
-		var url = this.prepareUrl(FM_LAYOUT);
+		const url = this.prepareUrl(FM_LAYOUT);
 		const opts = {
 			headers: {
 				"Authorization": this.bearer()
@@ -229,7 +230,7 @@ var FileMaker = function () {
 				successCallback(res.data.response.metaData);
 			})
 			.catch((e) => {
-				error = this.parseRequestError(e);
+				const error = this.parseRequestError(e);
 				//handle token expired: regenerate token and run action again
 				if (error.code === 401) {
 					this.getToken(() => {
@@ -244,7 +245,7 @@ var FileMaker = function () {
 
 	this.createCursor = function(layout, successCallback, errorCallback) {
 		this.layout = layout;
-		var url = this.prepareUrl(FM_CURSOR);
+		const url = this.prepareUrl(FM_CURSOR);
 		const opts = {
 			headers: {
 				"Authorization": this.bearer()
@@ -279,14 +280,15 @@ var FileMaker = function () {
 
 	this.resetCursor = function(layout, lastRecordId, successCallback, errorCallback) {
 		this.layout = layout;
-		var url = this.prepareUrl(FM_CURSOR_RESET);
+		const url = this.prepareUrl(FM_CURSOR_RESET);
 		const opts = {
 			headers: {
 				"Authorization": this.bearer(),
 				"X-FM-Data-Cursor-Token": this.cursor
 			}
 		};
-		var body = null;
+
+		let body = null;
 		if (lastRecordId) {
 			body = JSON.stringify({recordId: lastRecordId.toString()})
 		}
@@ -303,7 +305,7 @@ var FileMaker = function () {
 				//handle token expired: regenerate token, cursor and run action again
 				if (error.code === 401) {
 					this.getToken(() => {
-						this.createCursor(layout, (cursor) => {
+						this.createCursor(layout, () => {
 							this.resetCursor(layout, lastRecordId, successCallback, errorCallback)
 						}, errorCallback);
 					}, errorCallback);
@@ -315,7 +317,7 @@ var FileMaker = function () {
 
 	this.fetchRecords = function(layout, pageSize, lastRecordId, successCallback, errorCallback) {
 		this.layout = layout;
-		var url = this.prepareUrl(FM_CURSOR);
+		const url = this.prepareUrl(FM_CURSOR);
 		const opts = {
 			headers: {
 				"Authorization": this.bearer(),
@@ -341,7 +343,7 @@ var FileMaker = function () {
 				//handle token expired: regenerate token and run action again
 				if (error.code === 401) {
 					this.getToken(() => {
-						// If session expired during process, we need to generate a new cursor and reste its position to last record Id
+						// If session expired during process, we need to generate a new cursor and reset its position to last record Id
 						this.createCursor(layout, () => {
 							this.resetCursor(layout, lastRecordId, () => {
 								this.fetchRecords(layout, pageSize, lastRecordId, successCallback, errorCallback);
