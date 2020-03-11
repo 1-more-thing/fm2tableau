@@ -1,7 +1,8 @@
-/*
-* FileMaker Web Connector for Tableau 10.4+
-* Author: Romain Dunand - 1-more-thing
-*/
+/*!
+ * FileMaker 2 Tableau
+ * Copyright (C) 2020 1-more-thing (http://www.1-more-thing.com)
+ * Licensed under GPLv3 (http://www.gnu.org/licenses/)
+ */
 
 (function () {
 		window.app = new Vue({
@@ -55,10 +56,10 @@
 				},
 			},
 			watch: {
-				username: function (val) {
+				username: function () {
 					this.credentialError = null;
 				},
-				password: function (val) {
+				password: function () {
 					this.credentialError = null;
 				},
 			},
@@ -87,7 +88,7 @@
 					this.databaseList = [];
 					this.credentialError = null;
 
-					var that = this;
+					const that = this;
 					axios
 						.get('/fmi/data/vLatest/databases', opts)
 						.then(function (res) {
@@ -137,7 +138,7 @@
 						}
 					};
 
-					var that = this;
+					const that = this;
 					axios
 						.get(`/fmi/data/vLatest/databases/${this.auth.database}/layouts`, opts)
 						.then(function (res) {
@@ -178,7 +179,7 @@
 						}
 					};
 
-					var body = {
+					const body = {
 						'fmDataSource': [this.auth]
 					};
 

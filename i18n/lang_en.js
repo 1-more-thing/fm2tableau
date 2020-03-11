@@ -1,4 +1,9 @@
-var lang = {
+/*!
+ * FileMaker 2 Tableau
+ * Copyright (C) 2020 1-more-thing (http://www.1-more-thing.com)
+ * Licensed under GPLv3 (http://www.gnu.org/licenses/)
+ */
+const lang = {
   title : "Import data from FileMaker",
   titleRelogin : "Please login again to data source",
   labelDatabase : "Source Database Name:",
@@ -28,4 +33,4 @@ var lang = {
   errorGetProvidersInfo : "oAuth login failed at \"getProvidersInfo\" API: ",
   errorGetOauthUrl : "oAuth login failed at \"getOauthUrl\" API: ",
   errorOAuthEmptyUrl : "An empty url return from \"getOauthUrl\" API",
-}
+};
