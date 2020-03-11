@@ -1,6 +1,6 @@
 # FileMaker 2 Tableau
 This is an easy to use FileMaker® Web Data Connector built for Tableau 10.4+  
-Unlike Claris' offical connector, it allows you to connect multiple layouts at once, with an easy to use UI including autocompletion for databases and layouts.  
+In addition to Claris' offical connector, it allows you to connect multiple layouts at once, with an easy to use UI including autocompletion for databases and layouts.  
 It's totally free and open source !
 
 ![Screenshot](https://www.1-more-thing.com/wp-content/uploads/2020/03/FileMaker_2_Tableau.png)
