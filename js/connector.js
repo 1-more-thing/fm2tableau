@@ -75,7 +75,7 @@
 
 		fmConnector.fetchRows = function (table, conf, lastRecordId, doneCallback, successCallback) {
 			const pageSize = parseInt(conf.pageSize || 1000);
-			const layout = table.tableInfo.id;
+			const layout = table.tableInfo.alias;
 
 			fmConnector.filemaker.fetchRecords(layout, pageSize, lastRecordId,
 				(records) => {
@@ -88,9 +88,10 @@
 
 		const fetchCallback = function (records, conf, table, pageSize, lastRecordId, doneCallback) {
 			let toRet = [];
+			const layout = table.tableInfo.alias;
 			if (records.length > 0) {
-				const fieldTypes = conf.metaData[table.tableInfo.id].fieldTypes;
-				const fieldNames = conf.metaData[table.tableInfo.id].fieldNames;
+				const fieldTypes = conf.metaData[layout].fieldTypes;
+				const fieldNames = conf.metaData[layout].fieldNames;
 				records.forEach(function (record) {
 					const rec = record.fieldData;
 					//convert dates & timestamps
@@ -125,7 +126,7 @@
 		fmConnector.getData = function (table, doneCallback) {
 			const conf = JSON.parse(tableau.connectionData);
 			const lastRecordId = parseInt(table.incrementValue || 0);
-			const layout = table.tableInfo.id;
+			const layout = table.tableInfo.alias;
 
 			if (!conf.cursors[layout]) {
 				fmConnector.filemaker.createCursor(layout,
